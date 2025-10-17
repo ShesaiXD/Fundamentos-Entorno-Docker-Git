@@ -1,6 +1,6 @@
-Día 1 — Fundamentos + Entorno Docker / Git
+#Día 1 — Fundamentos + Entorno Docker / Git
 
-🎯 Objetivo General
+#Objetivo General
 
 Comprender los fundamentos de la arquitectura de microservicios y preparar el entorno base de trabajo usando Docker Compose y Git, de modo que cada servicio pueda levantarse y gestionarse de forma independiente.
 
