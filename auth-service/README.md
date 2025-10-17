@@ -11,9 +11,4 @@
 - PostgreSQL (5432)
 - Redis (6379)
 
-## Checklist Día 1
-- [x] Estructura base creada
-- [x] Git inicializado y subido a GitHub
-- [x] Docker Compose funcional con PostgreSQL y Redis
-- [x] Archivo .env.example configurado
-- [x] Test de conexión ejecutado con éxito
+
