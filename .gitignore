@@ -1,9 +1,57 @@
+# =============================
 # Node.js
+# =============================
 node_modules/
 npm-debug.log
-.env
-.DS_Store
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Logs
-logs
+# =============================
+# Archivos de entorno
+# =============================
+.env
+.env.local
+.env.dev
+.env.production
+.env.test
+
+# =============================
+# Python
+# =============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+venv/
+.env/
+
+# =============================
+# Logs y temporales
+# =============================
+logs/
 *.log
+*.tmp
+*.bak
+*.seed
+
+# =============================
+# Docker
+# =============================
+*.pid
+*.seed
+*.bak
+docker-compose.override.yml
+
+# =============================
+# VS Code / IDE
+# =============================
+.vscode/
+.idea/
+
+# =============================
+# Sistema
+# =============================
+.DS_Store
+Thumbs.db
