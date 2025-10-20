@@ -1,118 +1,71 @@
-# Día 1 — Fundamentos + Entorno Docker / Git
+# Laboratorio de Microservicios (Django + React) 🧪
 
-# Objetivo General
+## Descripción 📝
+Este repositorio contiene el código fuente para un proyecto de microservicios, diseñado para demostrar una arquitectura desacoplada y escalable utilizando Docker 🐳, Django 🐍 y React ⚛️.
 
-Comprender los fundamentos de la arquitectura de microservicios y preparar el entorno base de trabajo usando Docker Compose y Git, de modo que cada servicio pueda levantarse y gestionarse de forma independiente.
+### Arquitectura Final Planeada
+La estructura del proyecto está dividida en los siguientes microservicios y componentes:
 
-🧠 Conceptos Clave
+- 🔐 auth-service/ → Manejo de autenticación, usuarios y tokens JWT (Django).
+- 📝 blog-service/ → Gestión de publicaciones, autores y categorías (Django).
+- ✉️ email-service/ → Envío de notificaciones y gestión de formularios (Python/Flask).
+- 🖥️ frontend/ → Interfaz de usuario construida con React.
+- 🔀 reverse-proxy/ → Nginx como gateway y balanceador de carga local.
 
-Diferencia entre arquitectura monolítica y microservicios
+### Servicios Base
+- 🐘 PostgreSQL: Base de datos relacional principal.
+- 🧠 Redis: Caché en memoria y broker de mensajes.
 
-Principios: autonomía, responsabilidad única, acoplamiento flexible, escalabilidad y observabilidad
+## Instalación ⚙️
+Día 1: Configuración del Entorno y Conectividad
+En esta primera fase, se ha establecido la base del entorno de desarrollo con Docker. El objetivo fue configurar y levantar todos los servicios, asegurando que el microservicio de autenticación (auth-service) pudiera comunicarse correctamente con la base de datos y la caché.
 
-Estructura de proyecto multi-servicio
+### Arquitectura de Archivos (Día 1)
+```
+microservices-project/
+├── microservices-lab/
+│   ├── auth-service/
+│   │   ├── Dockerfile             # Receta para construir la imagen del servicio
+│   │   ├── README.md
+│   │   ├── requirements.txt       # Dependencias de Python
+│   │   └── test_connection.py     # Script para verificar la conexión
+│   ├── blog-service/
+│   │   └── README.md
+│   ├── email-service/
+│   │   └── README.md
+│   ├── frontend/
+│   │   └── README.md
+│   └── reverse-proxy/
+│       └── README.md
+├── .env.example                   # Plantilla de variables de entorno
+├── .gitignore                     # Archivos ignorados por Git
+├── docker-compose.yml             # Gestor de los contenedores Docker
+└── README.md                      # Documentación principal del proyecto
+```
 
-Uso de Docker + Docker Compose para levantar contenedores
+### ✅ Checklist de Avance (Día 1)
+- [x] Estructura inicial del proyecto: Se crearon las carpetas para cada microservicio.
+- [x] Configuración de .gitignore: Se añadió para excluir archivos sensibles.
+- [x] Creación de .env.example: Se definió la plantilla para las variables de entorno.
+- [x] Gestión con docker-compose.yml:
+- [x] Se levantaron los contenedores de PostgreSQL y Redis.
+- [x] Se añadió la configuración para construir y levantar el auth-service.
+- [x] Configuración del auth-service:
+- [x] Se creó el Dockerfile para definir la construcción de su imagen.
+- [x] Se creó el requirements.txt con las dependencias necesarias.
+- [x] Prueba de Conexión:
+- [x] Se creó el script test_connection.py.
+- [x] Se verificó exitosamente la conexión desde auth-service hacia PostgreSQL y Redis usando docker exec.
 
-Control de versiones con Git (ramas main y staging)
+## Uso 🚀
+Día 2: Implementación de Servicios (Próximamente)
+- [ ] Desarrollo de la API REST en auth-service con Django.
+- [ ] Creación de la aplicación base en frontend con React.
 
-# Estructura del Proyecto
-microservices-lab/
-├── auth-service/       # Servicio de autenticación y tokens JWT
-├── blog-service/       # Gestión de publicaciones, autores y categorías
-├── email-service/      # Envío de correos y notificaciones
-├── frontend/           # Interfaz web con React
-├── reverse-proxy/      # Proxy inverso / gateway local
-├── docker-compose.yml  # Configuración de contenedores base
-├── .env.example        # Variables de entorno de ejemplo
-└── README.md           # Documentación general del proyecto
+## Contribución 🤝
+- 💡 Se agradecen ideas y mejoras. Abre un issue para discutir cambios.
+- 🔧 Envía pull requests con descripciones claras y pruebas cuando aplique.
+- 📚 Mantén la consistencia del estilo y la estructura del proyecto.
 
-⚙️ Servicios Base
-Servicio	Imagen Docker	Puerto	Descripción
-PostgreSQL	postgres:15	5432	Base de datos principal
-Redis	redis:7	6379	Caché y comunicación entre servicios
-🔧 Configuración Inicial
-1️⃣ Crear estructura base
-mkdir microservices-lab
-cd microservices-lab
-mkdir auth-service blog-service email-service frontend reverse-proxy
-
-2️⃣ Inicializar Git y conectar con GitHub
-git init
-git branch -M main
-git add .
-git commit -m "Estructura inicial del laboratorio de microservicios"
-git remote add origin https://github.com/<tu-org>/microservices-lab.git
-git push -u origin main
-
-3️⃣ Archivo docker-compose.yml
-version: "3.9"
-services:
-  postgres:
-    image: postgres:15
-    container_name: db_postgres
-    restart: always
-    environment:
-      POSTGRES_USER: devuser
-      POSTGRES_PASSWORD: devpass
-      POSTGRES_DB: main_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7
-    container_name: cache_redis
-    restart: always
-    ports:
-      - "6379:6379"
-
-volumes:
-  pgdata:
-
-4️⃣ Levantar los contenedores
-docker compose up -d
-docker ps
-
-Si ves db_postgres y cache_redis activos, el entorno está listo.
-
-🔐 Variables de Entorno
-
-Archivo: .env.example
-
-POSTGRES_USER=devuser
-POSTGRES_PASSWORD=devpass
-POSTGRES_DB=main_db
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-
-Copia este archivo a .env en tu entorno local y no lo subas al repositorio.
-
-# Mini-Reto del Día
-
-Levantar los contenedores (docker compose up -d).
-
-Crear en auth-service/ un archivo test_connection.py que pruebe conexión con PostgreSQL y Redis.
-
-Ejecutarlo dentro del contenedor con:
-
-docker exec -it <nombre_contenedor> python test_connection.py
-
-# Entregables del Día 1
-
-Entregable	Descripción:
-
--Repositorio GitHub	Subido con estructura base y .env.example
--Docker Compose funcional	Levanta PostgreSQL y Redis sin errores
--README documentado	Incluye arquitectura, servicios y pasos
--Evidencia visual	Captura o video mostrando docker ps con contenedores activos
-
-. Próximos pasos:
-
-Crear Dockerfiles específicos para cada servicio (auth, blog, email, frontend).
-
-Conectar los servicios mediante variables de entorno y red Docker.
-
-Implementar endpoints iniciales con Django REST y React.
+## Licencia ©️
+- 📄 Licencia: Por definir.
