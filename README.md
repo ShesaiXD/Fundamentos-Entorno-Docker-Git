@@ -1,118 +1,194 @@
-# Día 1 — Fundamentos + Entorno Docker / Git
+# 🧱 Proyecto: Microservicios con Docker Compose
 
-# Objetivo General
+## 🚀 Descripción del Proyecto
 
-Comprender los fundamentos de la arquitectura de microservicios y preparar el entorno base de trabajo usando Docker Compose y Git, de modo que cada servicio pueda levantarse y gestionarse de forma independiente.
+Este proyecto implementa una arquitectura basada en **microservicios** utilizando **Docker Compose**.
+Incluye tres servicios principales:
 
-🧠 Conceptos Clave
+* **Auth Service:** servicio de autenticación en Python/Flask.
+* **Base de datos PostgreSQL:** almacena usuarios y datos persistentes.
+* **Redis:** se utiliza como caché para mejorar el rendimiento.
 
-Diferencia entre arquitectura monolítica y microservicios
+Cada servicio está aislado y se comunica a través de una red interna creada por Docker.
+El objetivo es demostrar la interoperabilidad entre servicios y la correcta configuración de un entorno desacoplado, modular y escalable.
 
-Principios: autonomía, responsabilidad única, acoplamiento flexible, escalabilidad y observabilidad
+---
 
-Estructura de proyecto multi-servicio
+## 🧩 Arquitectura General del Sistema
 
-Uso de Docker + Docker Compose para levantar contenedores
+```
+                  +-------------------------+
+                  |       CLIENTE API        |
+                  +-----------+--------------+
+                              |
+                              v
+                  +-------------------------+
+                  |     AUTH SERVICE         |
+                  |   Flask / Python 3.11    |
+                  +-----------+--------------+
+                              |
+             +----------------+----------------+
+             |                                 |
+             v                                 v
++-------------------------+       +-------------------------+
+|     PostgreSQL DB       |       |        Redis Cache       |
+|        (postgres:15)     |       |         (redis:7)        |
++-------------------------+       +-------------------------+
+```
 
-Control de versiones con Git (ramas main y staging)
+**Flujo principal:**
 
-# Estructura del Proyecto
+1. El cliente envía una solicitud HTTP al Auth Service.
+2. El Auth Service valida la información y accede a la base de datos PostgreSQL.
+3. Redis se utiliza como sistema de caché para mejorar la velocidad de respuesta.
+
+---
+
+## ⚙️ Estructura del Proyecto
+
+```
 microservices-lab/
-├── auth-service/       # Servicio de autenticación y tokens JWT
-├── blog-service/       # Gestión de publicaciones, autores y categorías
-├── email-service/      # Envío de correos y notificaciones
-├── frontend/           # Interfaz web con React
-├── reverse-proxy/      # Proxy inverso / gateway local
-├── docker-compose.yml  # Configuración de contenedores base
-├── .env.example        # Variables de entorno de ejemplo
-└── README.md           # Documentación general del proyecto
+│
+├── auth-service/
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── test_connection.py
+│
+├── docker-compose.yml
+└── README.md
+```
 
-⚙️ Servicios Base
-Servicio	Imagen Docker	Puerto	Descripción
-PostgreSQL	postgres:15	5432	Base de datos principal
-Redis	redis:7	6379	Caché y comunicación entre servicios
-🔧 Configuración Inicial
-1️⃣ Crear estructura base
-mkdir microservices-lab
-cd microservices-lab
-mkdir auth-service blog-service email-service frontend reverse-proxy
+---
 
-2️⃣ Inicializar Git y conectar con GitHub
-git init
-git branch -M main
-git add .
-git commit -m "Estructura inicial del laboratorio de microservicios"
-git remote add origin https://github.com/<tu-org>/microservices-lab.git
-git push -u origin main
+## 🐳 Configuración de los Servicios (docker-compose.yml)
 
-3️⃣ Archivo docker-compose.yml
-version: "3.9"
+```yaml
+version: '3.8'
+
 services:
-  postgres:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=devpass
+      - POSTGRES_DB=main_db
+      - REDIS_HOST=redis
+    networks:
+      - micro_net
+
+  db:
     image: postgres:15
     container_name: db_postgres
-    restart: always
     environment:
-      POSTGRES_USER: devuser
-      POSTGRES_PASSWORD: devpass
-      POSTGRES_DB: main_db
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=devpass
+      - POSTGRES_DB=main_db
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+    networks:
+      - micro_net
 
   redis:
     image: redis:7
     container_name: cache_redis
-    restart: always
     ports:
       - "6379:6379"
+    networks:
+      - micro_net
 
-volumes:
-  pgdata:
+networks:
+  micro_net:
+    driver: bridge
+```
 
-4️⃣ Levantar los contenedores
-docker compose up -d
+---
+
+## 🔧 Instrucciones de Ejecución
+
+### 1️⃣ Construir y ejecutar los contenedores
+
+```bash
+docker compose up --build -d
+```
+
+### 2️⃣ Verificar los contenedores en ejecución
+
+```bash
 docker ps
+```
 
-Si ves db_postgres y cache_redis activos, el entorno está listo.
+Salida esperada:
 
-🔐 Variables de Entorno
+```
+CONTAINER ID   IMAGE         PORTS                  NAMES
+xxxxx           redis:7       0.0.0.0:6379->6379/tcp  cache_redis
+xxxxx           postgres:15   0.0.0.0:5432->5432/tcp  db_postgres
+xxxxx           auth-service  0.0.0.0:5000->5000/tcp  auth-service
+```
 
-Archivo: .env.example
+### 3️⃣ Probar la conexión entre servicios
 
-POSTGRES_USER=devuser
-POSTGRES_PASSWORD=devpass
-POSTGRES_DB=main_db
-REDIS_HOST=redis
-REDIS_PORT=6379
+```bash
+docker exec -it auth-service python test_connection.py
+```
 
+---
 
-Copia este archivo a .env en tu entorno local y no lo subas al repositorio.
+## 🧠 Verificación de Conectividad
 
-# Mini-Reto del Día
+El script `test_connection.py` ejecuta pruebas automáticas para validar la conexión con **PostgreSQL** y **Redis**, mostrando mensajes de éxito o error en consola.
 
-Levantar los contenedores (docker compose up -d).
+Ejemplo de salida:
 
-Crear en auth-service/ un archivo test_connection.py que pruebe conexión con PostgreSQL y Redis.
+```
+Postgres OK — SELECT 1 -> (1,)
+Redis OK — PING -> True
+Conexiones OK ✅
+```
 
-Ejecutarlo dentro del contenedor con:
+---
 
-docker exec -it <nombre_contenedor> python test_connection.py
+## ✅ Checklist de Implementación
 
-# Entregables del Día 1
+| Nº | Requisito                | Descripción                           | Estado |
+| -- | ------------------------ | ------------------------------------- | ------ |
+| 1  | **Dockerfile**           | Archivo configurado para Python/Flask | ✅      |
+| 2  | **requirements.txt**     | Dependencias correctamente definidas  | ✅      |
+| 3  | **docker-compose.yml**   | Configuración funcional de servicios  | ✅      |
+| 4  | **Test de conexión**     | Script `test_connection.py` operativo | ✅      |
+| 5  | **Contenedores activos** | Verificados mediante `docker ps`      | ✅      |
+| 6  | **README documentado**   | Incluye arquitectura y guía técnica   | ✅      |
+| 7  | **Evidencia visual**     | Captura o video del entorno corriendo | ✅      |
 
-Entregable	Descripción:
+---
 
--Repositorio GitHub	Subido con estructura base y .env.example
--Docker Compose funcional	Levanta PostgreSQL y Redis sin errores
--README documentado	Incluye arquitectura, servicios y pasos
--Evidencia visual	Captura o video mostrando docker ps con contenedores activos
+## 🧰 Tecnologías Utilizadas
 
-. Próximos pasos:
+* **Python 3.11**
+* **Flask**
+* **PostgreSQL 15**
+* **Redis 7**
+* **Docker & Docker Compose**
 
-Crear Dockerfiles específicos para cada servicio (auth, blog, email, frontend).
+---
 
-Conectar los servicios mediante variables de entorno y red Docker.
+## 👩‍💻 Autora del Proyecto
 
-Implementar endpoints iniciales con Django REST y React.
+**Tracy Moriano**
+Ingeniera de Software con Inteligencia Artificial
+📍 Lima, Perú — 2025
+📧 [tracynicolehmorianotuanama@gmail.com](mailto:tracynicolehmorianotuanama@gmail.com) 
+
+---
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia **MIT**, lo que permite su uso, modificación y distribución con los debidos créditos al autor.
