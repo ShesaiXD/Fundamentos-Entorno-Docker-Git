@@ -195,8 +195,6 @@ Conexiones OK ✅
 ## 👩‍💻 Autora del Proyecto
 
 **Tracy Moriano**
-**Ingeniera de Software con Inteligencia Artificial**
-**📍 Lima, Perú — 2025**
 📧 [tracynicolehmorianotuanama@gmail.com](mailto:tracynicolehmorianotuanama@gmail.com) 
 
 ---
