@@ -1,4 +1,4 @@
-# 🧱 Proyecto: Microservicios con Docker Compose
+# 🧱 Proyecto: Microservicios con Docker Compose (Día 1)
 
 ## 🚀 Descripción del Proyecto
 
