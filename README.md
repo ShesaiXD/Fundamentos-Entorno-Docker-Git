@@ -17,12 +17,12 @@ El objetivo es demostrar la interoperabilidad entre servicios y la correcta conf
 ## 🧩 Arquitectura General del Sistema
 
 ```
-                  +-------------------------+
+                  +--------------------------+
                   |       CLIENTE API        |
                   +-----------+--------------+
                               |
                               v
-                  +-------------------------+
+                  +--------------------------+
                   |     AUTH SERVICE         |
                   |   Flask / Python 3.11    |
                   +-----------+--------------+
@@ -195,8 +195,8 @@ Conexiones OK ✅
 ## 👩‍💻 Autora del Proyecto
 
 **Tracy Moriano**
-Ingeniera de Software con Inteligencia Artificial
-📍 Lima, Perú — 2025
+**Ingeniera de Software con Inteligencia Artificial**
+**📍 Lima, Perú — 2025**
 📧 [tracynicolehmorianotuanama@gmail.com](mailto:tracynicolehmorianotuanama@gmail.com) 
 
 ---
