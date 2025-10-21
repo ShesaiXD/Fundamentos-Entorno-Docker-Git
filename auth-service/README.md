@@ -1,0 +1,1 @@
+Gestión de Identidad y Acceso. Se encarga del registro, inicio de sesión, y la validación de credenciales de los usuarios. Es responsable de emitir y verificar tokens de seguridad (como JWT) para autorizar peticiones a otros servicios.

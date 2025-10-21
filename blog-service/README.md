@@ -1,0 +1,1 @@
+Manejo del Contenido Principal. Contiene la lógica central para crear, leer, actualizar y eliminar las publicaciones (posts), comentarios, categorías y etiquetas. Es el repositorio de datos principal del blog.

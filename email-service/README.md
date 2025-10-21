@@ -1,0 +1,1 @@
+Comunicación Externa Asíncrona. Su única responsabilidad es manejar el envío de correos electrónicos. Recibe comandos de otros servicios (ej. "Enviar correo de bienvenida", "Enviar notificación de nuevo comentario") y gestiona la comunicación con el proveedor de correo (SendGrid, Mailgun, etc.).

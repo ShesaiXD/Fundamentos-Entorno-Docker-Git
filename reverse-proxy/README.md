@@ -1,0 +1,1 @@
+Punto Único de Entrada y Distribución. Es el primer punto de contacto para todos los clientes. Enruta el tráfico a los microservicios internos correctos, maneja la terminación SSL, rate limiting y puede realizar balanceo de carga entre las instancias de los servicios.

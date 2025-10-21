@@ -1,0 +1,1 @@
+Capa de Presentación al Cliente. Contiene todo el código que se ejecuta en el navegador del usuario (HTML, CSS, JavaScript, frameworks como React/Vue). Consume los datos de la API a través del Reverse Proxy para renderizar la aplicación.
