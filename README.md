@@ -31,8 +31,8 @@ El objetivo es demostrar la interoperabilidad entre servicios y la correcta conf
              |                                 |
              v                                 v
 +-------------------------+       +-------------------------+
-|     PostgreSQL DB       |       |        Redis Cache       |
-|        (postgres:15)     |       |         (redis:7)        |
+|     PostgreSQL DB       |       |        Redis Cache      |
+|     (postgres:15)       |       |         (redis:7)       |
 +-------------------------+       +-------------------------+
 ```
 
@@ -54,6 +54,18 @@ microservices-lab/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── test_connection.py
+│
+├── blog-service/
+│   └── README.md
+│
+├── email-service/
+│   └── README.md
+│
+├── frontend/
+│   └── README.md
+│
+├── reverse-service/
+│   └── README.md
 │
 ├── docker-compose.yml
 └── README.md
