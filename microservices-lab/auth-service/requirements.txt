@@ -1,3 +1,9 @@
-flask
+django==5.0
+djangorestframework==3.15
+djangorestframework-simplejwt==5.3
 psycopg2-binary
 redis
+django-cors-headers
+django-redis
+gunicorn
+python-dotenv
