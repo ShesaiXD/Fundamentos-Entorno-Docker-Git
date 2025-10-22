@@ -1,205 +1,144 @@
-# 🧱 Proyecto: Microservicios con Docker Compose (Día 1)
+🧭 DÍA 2 — Ejercicio 2: BACKEND Microservicio Backend Auth (Django + DRF + JWT + PostgreSQL + Redis)
+🎯 Objetivo general:
+ Construir un microservicio de autenticación completamente independiente, que maneje usuarios, login y tokens JWT, corriendo en su propio contenedor Docker y conectado a PostgreSQL y Redis.
 
-## 🚀 Descripción del Proyecto
+🧩 Conceptos clave
+Autenticación basada en JWT (JSON Web Tokens)
+Estructura de un servicio Django aislado
+Configuración de variables de entorno y dependencias
+Cacheo y sesiones con Redis
+Comunicación segura entre servicios vía API
 
-Este proyecto implementa una arquitectura basada en **microservicios** utilizando **Docker Compose**.
-Incluye tres servicios principales:
 
-* **Auth Service:** servicio de autenticación en Python/Flask.
-* **Base de datos PostgreSQL:** almacena usuarios y datos persistentes.
-* **Redis:** se utiliza como caché para mejorar el rendimiento.
+🕐 Video de referencia:
+🎥 “Microservicios con Django REST Framework, Next.js y Apache Kafka”
+ 👉 https://www.youtube.com/watch?v=wj766sxHZrM
+📍 Ver desde: minuto 26:13 hasta 2:54:00
+(No ver ni implementar la parte de Kafka Producer — solo REST y Redis)
 
-Cada servicio está aislado y se comunica a través de una red interna creada por Docker.
-El objetivo es demostrar la interoperabilidad entre servicios y la correcta configuración de un entorno desacoplado, modular y escalable.
+⚙️ Pasos del ejercicio
+1️⃣ Crear el proyecto Django y app users
+cd auth-service
+django-admin startproject auth_service .
+python manage.py startapp users
 
----
+2️⃣ Configurar el Dockerfile
+FROM python:3.11
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["gunicorn", "auth_service.wsgi:application", "--bind", "0.0.0.0:8000"]
 
-## 🧩 Arquitectura General del Sistema
+3️⃣ Extender docker-compose.yml
+auth:
+  build: ./auth-service
+  container_name: auth_service
+  restart: always
+  environment:
+    - DEBUG=1
+    - DB_HOST=postgres
+    - DB_NAME=main_db
+    - DB_USER=devuser
+    - DB_PASS=devpass
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+  depends_on:
+    - postgres
+    - redis
+  ports:
+    - "8000:8000"
 
-```
-                  +--------------------------+
-                  |       CLIENTE API        |
-                  +-----------+--------------+
-                              |
-                              v
-                  +--------------------------+
-                  |     AUTH SERVICE         |
-                  |   Flask / Python 3.11    |
-                  +-----------+--------------+
-                              |
-             +----------------+----------------+
-             |                                 |
-             v                                 v
-+-------------------------+       +-------------------------+
-|     PostgreSQL DB       |       |        Redis Cache      |
-|     (postgres:15)       |       |         (redis:7)       |
-+-------------------------+       +-------------------------+
-```
 
-**Flujo principal:**
+4️⃣ Instalar dependencias (en requirements.txt)
+django==5.0
+djangorestframework==3.15
+djangorestframework-simplejwt==5.3
+psycopg2-binary
+redis
+django-cors-headers
 
-1. El cliente envía una solicitud HTTP al Auth Service.
-2. El Auth Service valida la información y accede a la base de datos PostgreSQL.
-3. Redis se utiliza como sistema de caché para mejorar la velocidad de respuesta.
 
----
+5️⃣ Configurar settings.py
+Añadir rest_framework, corsheaders, users
 
-## ⚙️ Estructura del Proyecto
 
-```
-microservices-lab/
-│
-├── auth-service/
-│   ├── app.py
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── test_connection.py
-│
-├── blog-service/
-│   └── README.md
-│
-├── email-service/
-│   └── README.md
-│
-├── frontend/
-│   └── README.md
-│
-├── reverse-service/
-│   └── README.md
-│
-├── docker-compose.yml
-└── README.md
-```
+Configurar DATABASES con variables de entorno
 
----
 
-## 🐳 Configuración de los Servicios (docker-compose.yml)
+Configurar CACHES (Redis)
 
-```yaml
-version: '3.8'
 
-services:
-  auth-service:
-    build: ./auth-service
-    container_name: auth-service
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db
-      - redis
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_USER=devuser
-      - POSTGRES_PASSWORD=devpass
-      - POSTGRES_DB=main_db
-      - REDIS_HOST=redis
-    networks:
-      - micro_net
+Añadir middleware corsheaders.middleware.CorsMiddleware
 
-  db:
-    image: postgres:15
-    container_name: db_postgres
-    environment:
-      - POSTGRES_USER=devuser
-      - POSTGRES_PASSWORD=devpass
-      - POSTGRES_DB=main_db
-    ports:
-      - "5432:5432"
-    networks:
-      - micro_net
 
-  redis:
-    image: redis:7
-    container_name: cache_redis
-    ports:
-      - "6379:6379"
-    networks:
-      - micro_net
+Definir REST_FRAMEWORK con JWTAuthentication
 
-networks:
-  micro_net:
-    driver: bridge
-```
 
----
 
-## 🔧 Instrucciones de Ejecución
+6️⃣ Modelo de usuario personalizado
+En users/models.py:
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.db import models
 
-### 1️⃣ Construir y ejecutar los contenedores
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None):
+        if not email:
+            raise ValueError("Email obligatorio")
+        user = self.model(email=self.normalize_email(email))
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-```bash
-docker compose up --build -d
-```
+class User(AbstractBaseUser):
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+    USERNAME_FIELD = 'email'
+    objects = UserManager()
 
-### 2️⃣ Verificar los contenedores en ejecución
+    def __str__(self):
+        return self.email
 
-```bash
-docker ps
-```
+Registrar en settings.py:
+AUTH_USER_MODEL = 'users.User'
 
-Salida esperada:
 
-```
-CONTAINER ID   IMAGE         PORTS                  NAMES
-xxxxx           redis:7       0.0.0.0:6379->6379/tcp  cache_redis
-xxxxx           postgres:15   0.0.0.0:5432->5432/tcp  db_postgres
-xxxxx           auth-service  0.0.0.0:5000->5000/tcp  auth-service
-```
+7️⃣ Endpoints con JWT
+En users/views.py o rutas de API:
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-### 3️⃣ Probar la conexión entre servicios
+Configura rutas:
+path('api/token/', TokenObtainPairView.as_view()),
+path('api/token/refresh/', TokenRefreshView.as_view()),
 
-```bash
-docker exec -it auth-service python test_connection.py
-```
+Crea también un endpoint /api/register/ que permita crear usuarios.
 
----
+8️⃣ Probar con Postman
+POST /api/register/ → crea usuario
 
-## 🧠 Verificación de Conectividad
 
-El script `test_connection.py` ejecuta pruebas automáticas para validar la conexión con **PostgreSQL** y **Redis**, mostrando mensajes de éxito o error en consola.
+POST /api/token/ → genera access/refresh token
 
-Ejemplo de salida:
 
-```
-Postgres OK — SELECT 1 -> (1,)
-Redis OK — PING -> True
-Conexiones OK ✅
-```
+POST /api/token/refresh/ → renueva token
 
----
 
-## ✅ Checklist de Implementación
+Verificar conexión con base de datos y Redis:
+docker exec -it auth_service python manage.py shell
 
-| Nº | Requisito                | Descripción                           | Estado |
-| -- | ------------------------ | ------------------------------------- | ------ |
-| 1  | **Dockerfile**           | Archivo configurado para Python/Flask | ✅      |
-| 2  | **requirements.txt**     | Dependencias correctamente definidas  | ✅      |
-| 3  | **docker-compose.yml**   | Configuración funcional de servicios  | ✅      |
-| 4  | **Test de conexión**     | Script `test_connection.py` operativo | ✅      |
-| 5  | **Contenedores activos** | Verificados mediante `docker ps`      | ✅      |
-| 6  | **README documentado**   | Incluye arquitectura y guía técnica   | ✅      |
-| 7  | **Evidencia visual**     | Captura o video del entorno corriendo | ✅      |
 
----
+🧪 Reto adicional (opcional)
+Implementar endpoint /api/me/ que devuelva la información del usuario autenticado.
 
-## 🧰 Tecnologías Utilizadas
-
-* **Python 3.11**
-* **Flask**
-* **PostgreSQL 15**
-* **Redis 7**
-* **Docker & Docker Compose**
-
----
-
-## 👩‍💻 Autora del Proyecto
-
-**Tracy Moriano**
-
-📧 [tracynicolehmorianotuanama@gmail.com](mailto:tracynicolehmorianotuanama@gmail.com) 
-
----
-
-## 📄 Licencia
-
-Este proyecto se distribuye bajo la licencia **MIT**, lo que permite su uso, modificación y distribución con los debidos créditos al autor.
+📦 Entregables del Día 2
+Entregable
+Descripción
+Código funcional del microservicio auth-service/
+Proyecto Django con JWT, PostgreSQL y Redis
+Dockerfile y docker-compose.yml actualizados
+Contenedor funcionando en puerto 8000
+Captura Postman
+Evidencia de login, refresh y verify exitosos
+README actualizado
+Descripción del servicio y endpoints
