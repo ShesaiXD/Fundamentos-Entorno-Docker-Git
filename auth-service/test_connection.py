@@ -2,12 +2,11 @@ import os
 import psycopg2
 import redis
 
-# Variables de entorno
 pg_user = os.getenv("POSTGRES_USER", "postgres")
 pg_pass = os.getenv("POSTGRES_PASSWORD", "12345")
 pg_db   = os.getenv("POSTGRES_DB", "postgres")
-pg_host = "localhost"
-pg_port = 5433
+pg_host = os.getenv("POSTGRES_HOST", "localhost")
+pg_port = int(os.getenv("POSTGRES_PORT", 5433))
 
 redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = int(os.getenv("REDIS_PORT", 6379))

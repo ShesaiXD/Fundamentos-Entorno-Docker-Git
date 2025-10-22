@@ -18,6 +18,21 @@ services:
     restart: always
     ports:
       - "6379:6379"
+      
+  auth-service:
+    build: ./auth-service
+    container_name: microservices-lab
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: main_db
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
 volumes:
   pgdata:
